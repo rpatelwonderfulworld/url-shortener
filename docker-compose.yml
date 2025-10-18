@@ -1,26 +1,44 @@
-version: '3.9'
+version: "3.8"
+
 services:
-  db:
-    image: postgres:17
-    environment:
-      POSTGRES_USER: url_user
-      POSTGRES_PASSWORD: StrongPassword123
-      POSTGRES_DB: url_shortener
-    ports:
-      - "5432:5432"
   backend:
     build: ./backend
-    environment:
-      DB_HOST: db
-      DB_PORT: 5432
-      DB_USER: url_user
-      DB_PASSWORD: StrongPassword123
-      DB_NAME: url_shortener
-    depends_on:
-      - db
+    container_name: url-shortener-backend
     ports:
       - "5000:5000"
+    environment:
+      - NODE_ENV=production
+      - DB_HOST=host.docker.internal
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASS=postgres
+      - DB_NAME=urlshortener
+      - JWT_SECRET=supersecretkey
+    depends_on:
+      - postgres
+
   frontend:
     build: ./frontend
+    container_name: url-shortener-frontend
     ports:
-      - "3000:3000"
+      - "3000:80"
+    depends_on:
+      - backend
+    environment:
+      - VITE_API_URL=http://localhost:5000
+
+  postgres:
+    image: postgres:14-alpine
+    container_name: url-shortener-db
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: urlshortener
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
