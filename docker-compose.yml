@@ -1,0 +1,26 @@
+version: '3.9'
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: url_user
+      POSTGRES_PASSWORD: StrongPassword123
+      POSTGRES_DB: url_shortener
+    ports:
+      - "5432:5432"
+  backend:
+    build: ./backend
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: url_user
+      DB_PASSWORD: StrongPassword123
+      DB_NAME: url_shortener
+    depends_on:
+      - db
+    ports:
+      - "5000:5000"
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
